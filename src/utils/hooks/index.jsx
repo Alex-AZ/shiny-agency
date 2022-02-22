@@ -1,34 +1,5 @@
-import { useEffect, useState } from "react";
-
-
-export function useFetch(url) {
-
-    const [data, setData] = useState({})
-    const [isLoading, setLoading] = useState(true)
-    const [error, setError] = useState(false)
-
-    useEffect(() => {
-        if (!url) return 
-            setLoading(true)
-            async function fetchData() {
-                try {
-                    const response = await fetch(url)
-                    const data = await response.json()
-
-                    setData(data)  
-                } catch (err) {
-                    console.log(err);
-                    setError(true)
-                } finally {
-                    setLoading(false)
-                }
-            }
-            fetchData()
-    }, [url])
-
-    return { isLoading, data, error }
-}
-
+import { useContext, useEffect, useState } from "react";
+import { ThemeContext } from "../context";
 
 /* Pour notre nouveau hook, useFetch, on lui passe en paramètre l’URL de l’API qu’on veut appeler. 
 Il possède un state interne qui lui permet de stocker la data, 
@@ -48,3 +19,32 @@ Il déclare la fonction asynchrone fetchData  qui permet de :
 url  fait partie du tableau de dépendances du useEffect, 
 ce qui permettra de redéclencher le call en cas de changement d’URL passée en paramètre. 
 Puis, on appelle notre fonction fetchData. */
+export function useFetch(url) {
+    const [data, setData] = useState({})
+    const [isLoading, setLoading] = useState(true)
+    const [error, setError] = useState(false)
+
+    useEffect(() => {
+        if (!url) return 
+            setLoading(true)
+            async function fetchData() {
+                try {
+                    const response = await fetch(url)
+                    const data = await response.json()
+                    setData(data)  
+                } catch (err) {
+                    console.log(err);
+                    setError(true)
+                } finally {
+                    setLoading(false)
+                }
+            }
+            fetchData()
+    }, [url])
+    return { isLoading, data, error }
+}
+
+export function useTheme() {
+    const { theme, toggleTheme } = useContext(ThemeContext)
+    return { theme, toggleTheme }
+}

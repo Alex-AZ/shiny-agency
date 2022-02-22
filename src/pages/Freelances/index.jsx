@@ -1,8 +1,8 @@
 import Card from '../../components/Card'
 import styled from 'styled-components'
 import colors from '../../utils/style/colors'
-import { useEffect, useState } from 'react'
 import { Loader } from '../../utils/style/Atoms'
+import { useFetch, useTheme } from '../../utils/hooks'
 
 const CardsContainer = styled.div`
   display: grid;
@@ -33,42 +33,17 @@ const LoaderWrapper = styled.div`
   justify-content: center;
 `
 
-const freelanceProfiles = [
-  {
-    name: 'Jane Doe',
-    jobTitle: 'Devops',
-  },
-  {
-    name: 'John Doe',
-    jobTitle: 'Developpeur frontend',
-  },
-  {
-    name: 'Jeanne Biche',
-    jobTitle: 'Développeuse Fullstack',
-  },
-]
 
 function Freelances() {
-  const [isDataLoading, setDataLoading] = useState(false)
-  const [error, setError] = useState(false)
-  const [freelancersList, setFreelancersList] = useState([])
+  const { theme } = useTheme()
+  const { data, isLoading, error } = useFetch(
+    `http://localhost:8000/freelances`
+  )
 
-  useEffect(() => {
-    async function fetchFreelances() {
-      setDataLoading(true)
-      try {
-        const response = await fetch(`http://localhost:8000/freelances`)
-        const { freelancersList } = await response.json()
-        setFreelancersList(freelancersList)
-      } catch (err) {
-        console.log('===== error =====', err);
-        setError(true)
-      } finally {
-        setDataLoading(false)
-      }
-    }
-    fetchFreelances()
-  }, [])
+  // Ici le "?" permet de s'assurer que data existe bien.
+  // Vous pouvez en apprendre davantage sur cette notation ici :
+  // https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Operators/Optional_chaining
+  const freelancersList = data?.freelancersList
 
   if (error) {
     return <span>Oups il y a eu un problème dans la matrice</span>
@@ -80,17 +55,18 @@ function Freelances() {
       <PageSubtitle>
         Chez Shiny nous réunissons les meilleurs profils pour vous.
       </PageSubtitle>
-      { isDataLoading ? (
+      {isLoading ? (
         <LoaderWrapper>
-          <Loader />
+          <Loader theme={theme} />
         </LoaderWrapper>
       ) : (
         <CardsContainer>
-        {freelanceProfiles.map((profile, index) => (
+        {freelancersList.map((profile, index) => (
           <Card
             key={`${profile.name}-${index}`}
             label={profile.jobTitle}
             title={profile.name}
+            picture={profile.picture}
           />
         ))}
       </CardsContainer>
